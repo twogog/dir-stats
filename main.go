@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 )
 
@@ -21,9 +22,8 @@ func main() {
 		return
 	}
 
-	statistic, _ := os.Create("people.txt")
-	writer := bufio.NewWriter(statistic)
-	defer statistic.Close()
+	done := make(chan struct{})
+	writer := asker.askOutput(done)
 
 	filepath.WalkDir(somePath, func(path string, d fs.DirEntry, err error) error {
 		isFile := !d.IsDir()
@@ -66,4 +66,5 @@ func main() {
 		return nil
 	})
 
+	done <- struct{}{}
 }
